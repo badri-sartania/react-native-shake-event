@@ -16,13 +16,11 @@ Add the shake event on your React Native mobile app, giving to users improved us
 $ npm install react-native-shake-event --save
 ```
 
-### iOS
-
-##### Automatic
+##### Link (required)
 
 `react-native link react-native-shake-event`
 
-##### iOS Manual
+##### Link (iOS manually)
 
 1. Add the `ios/RNShakeEvent.xcodeproj` file to your Xcode project [Demo](https://facebook.github.io/react-native/img/AddToLibraries.png);
 2. Add the `Products/libRNShakeEvent.a` file to **Build Phases**  [Demo](https://facebook.github.io/react-native/img/AddToBuildPhases.png).
@@ -34,15 +32,15 @@ This step is described here: [Linking Libraries](https://facebook.github.io/reac
 ```js
 import RNShakeEvent from 'react-native-shake-event';
 
-class MyComponent extends React.Component {
-  componentWillMount() {
-    RNShakeEvent.addEventListener('shake', () => {
-      console.log('Device shake!');
+class App extends React.Component {
+  componentDidMount() {    
+    RNShakeEvent.onEnded(() => {
+      console.debug('Device shaked.');
     });
   }
 
   componentWillUnmount() {
-    RNShakeEvent.removeEventListener('shake');
+    RNShakeEvent.remove();
   }
 }
 ```
@@ -51,15 +49,15 @@ class MyComponent extends React.Component {
 
 ### RNShakeEvent
 
-#### onBegan(Function)
+#### onBegan(Function?)
 
 Start listening the shake event and handle a callback function "on began".
 
-#### onEnded(Function)
+#### onEnded(Function?)
 
 Start listening the shake event and handle a callback function "on ended".
 
-#### remove(Function)
+#### remove(Function?)
 
 Stop to listening the shake event, recommended to prevent memory leak.
 
