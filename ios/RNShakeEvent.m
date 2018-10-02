@@ -1,20 +1,19 @@
 #import "RNShakeEvent.h"
-
-#import <React/RCTBridge.h>
-#import <React/RCTEventDispatcher.h>
-#import <React/RCTLog.h>
 #import <React/RCTUtils.h>
 
-static NSString *const RCTShowDevMenuNotification = @"RCTShowDevMenuNotification";
+#if RCT_DEV
+static NSString *const RNShakeEventNotification = @"RCTShowDevMenuNotification";
+#else
+static NSString *const RNShakeEventNotification = @"RNShakeEventNotification";
+#endif
 
-#if !RCT_DEV
 
 @implementation UIWindow (RNShakeEvent)
 
-- (void)handleShakeEvent:(__unused UIEventSubtype)motion withEvent:(UIEvent *)event
+- (void)RNShakeEvent:(__unused UIEventSubtype)motion withEvent:(UIEvent *)event
 {
     if (event.subtype == UIEventSubtypeMotionShake) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:RCTShowDevMenuNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:RNShakeEventNotification object:nil];
     }
 }
 
@@ -22,76 +21,71 @@ static NSString *const RCTShowDevMenuNotification = @"RCTShowDevMenuNotification
 
 @implementation RNShakeEvent
 
-@synthesize bridge = _bridge;
+{
+    bool hasListeners;
+}
+
 
 RCT_EXPORT_MODULE();
 
-+ (void)initialize
+
+- (NSArray<NSString *> *)supportedEvents
 {
-    RCTSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(handleShakeEvent:withEvent:));
+    return @[@"ShakeEventBegan", @"ShakeEventEnded"];
 }
 
-- (instancetype)init
-{
-    if ((self = [super init])) {
-        RCTLogInfo(@"RNShakeEvent: started in debug mode");
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(motionEnded:)
-                                                     name:RCTShowDevMenuNotification
-                                                   object:nil];
-    }
-    return self;
+-(void)startObserving {
+    hasListeners = YES;
 }
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)motionEnded:(NSNotification *)notification
-{
-    [_bridge.eventDispatcher sendDeviceEventWithName:@"ShakeEvent"
-                                                body:nil];
-}
-
-@end
-
-#else
-
-@implementation RNShakeEvent
-
-@synthesize bridge = _bridge;
-
-RCT_EXPORT_MODULE();
-
-- (instancetype)init
-{
-    if ((self = [super init])) {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(motionEnded:)
-                                                     name:RCTShowDevMenuNotification
-                                                   object:nil];
-    }
-    return self;
-}
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)motionEnded:(NSNotification *)notification
-{
-    [_bridge.eventDispatcher sendDeviceEventWithName:@"ShakeEvent"
-                                                body:nil];
+-(void)stopObserving {
+    hasListeners = NO;
 }
 
 + (BOOL)requiresMainQueueSetup
 {
-    return YES;
+    return NO;
 }
 
++ (void)initialize
+{
+    RCTSwapInstanceMethods([UIWindow class], @selector(motionBegan:withEvent:), @selector(RNShakeEvent:withEvent:));
+    RCTSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(RNShakeEvent:withEvent:));
+}
+
+- (instancetype)init
+{
+    if ((self = [super init])) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(motionBegan:)
+                                                     name:RNShakeEventNotification
+                                                   object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(motionEnded:)
+                                                     name:RNShakeEventNotification
+                                                   object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)motionBegan:(NSNotification *)notification
+{
+    if (hasListeners) {
+        [self sendEventWithName:@"ShakeEventBegan" body:nil];
+    }
+}
+
+- (void)motionEnded:(NSNotification *)notification
+{
+    if (hasListeners) {
+        [self sendEventWithName:@"ShakeEventEnded" body:nil];
+    }
+}
 
 @end
-
-#endif

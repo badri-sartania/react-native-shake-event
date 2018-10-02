@@ -1,6 +1,6 @@
 {
   "name": "react-native-shake-event",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "Add shake event to your React Native app",
   "main": "js/index.js",
   "files": [
@@ -29,17 +29,33 @@
       "email": "jadsonlourenco@gmail.com"
     },
     {
-      "name": "Björn Orri Sæmundsson",
-      "email": "bjornorri@gmail.com"
+      "name": "Mark Miyashita",
+      "email": "negativetwelve@gmail.com"
+    },
+    {
+      "name": "Anton Semenov",
+      "url" : "https://github.com/anta-semenov"
     },
     {
       "name": "Richard Gill",
       "email": "richard@rgill.co.uk"
     },
     {
-      "name": "Mark Miyashita",
-      "email": "negativetwelve@gmail.com"
-    }
+      "name": "Ioannis Kokkinidis",
+      "email": "sudoplz@gmail.com"
+    },
+    {
+      "name": "Bruno Lemos",
+      "url" : "https://github.com/brunolemos"
+    },
+    {
+      "name": "William Schurman",
+      "email": "wschurman@gmail.com"
+    },
+    {
+      "name": "Björn Orri Sæmundsson",
+      "email": "bjornorri@gmail.com"
+    }       
   ],
   "license": "MIT",
   "repository": {
@@ -49,8 +65,5 @@
   "bugs": {
     "url": "https://github.com/jadsonlourenco/react-native-shake-event/issues"
   },
-  "homepage": "https://github.com/jadsonlourenco/react-native-shake-event",
-  "dependencies": {
-    "invariant": "^2.2.2"
-  }
+  "homepage": "https://github.com/jadsonlourenco/react-native-shake-event"  
 }

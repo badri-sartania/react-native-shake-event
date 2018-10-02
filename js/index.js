@@ -4,35 +4,48 @@
  */
 'use strict';
 
-import React, {DeviceEventEmitter, NativeModules} from 'react-native';
-import invariant from 'invariant';
+import {NativeEventEmitter, NativeModules, Platform} from 'react-native';
 
-var listener;
-class RNShakeEvent {
-  static addEventListener(type: string, handler: Function) {
-    invariant(
-      type === 'shake',
-      'RNShakeEventIOS only supports `shake` event'
-    );
-    listener = DeviceEventEmitter.addListener('ShakeEvent', () => {
-      if (handler) {
-        handler();
-      }
-    });
+const { RNShakeEvent } = NativeModules;
+const shakeEventManagerEmitter = Platform.isTVOS ? null : new NativeEventEmitter(RNShakeEvent);
+var subscriptions = [];
+
+class ShakeEvent {  
+  static onBegan(callback) {   
+    if (shakeEventManagerEmitter === null) {
+      console.debug(`RNShakeEvent: tvOS don't support shake gesture.`)      
+    } else {
+      let listener = shakeEventManagerEmitter.addListener('ShakeEventBegan', () => {
+        if (callback) {
+          callback();
+        }
+      });
+      subscriptions.push(listener);
+    }    
   }
-  static removeEventListener(type: string, handler: Function) {
-    invariant(
-      type === 'shake',
-      'RNShakeEventIOS only supports `shake` event'
-    );
-    if (!listener) {
+  static onEnded(callback) {   
+    if (shakeEventManagerEmitter === null) {
+      console.debug(`RNShakeEvent: tvOS don't support shake gesture.`)      
+    } else {
+      let listener = shakeEventManagerEmitter.addListener('ShakeEventEnded', () => {
+        if (callback) {
+          callback();
+        }
+      });
+      subscriptions.push(listener);
+    }
+  }
+  static remove(callback) {    
+    if (subscriptions.count <= 0) {
       return;
     }
-    if (handler) {
-      handler();
-    }
-    listener.remove();
+    if (callback) {
+      callback();
+    }    
+    subscriptions.forEach((listener) => {
+      listener.remove();
+    });
   }
 };
 
-module.exports = RNShakeEvent;
+module.exports = ShakeEvent;
